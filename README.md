@@ -1,5 +1,5 @@
 # Scrapper
-To install all the dependencies for the scrapper run:
+Para instalar las dependencias del scrapper usa:
 
 ``` bash
 cd /scrapper/
