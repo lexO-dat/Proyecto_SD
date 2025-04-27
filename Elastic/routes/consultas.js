@@ -1,50 +1,78 @@
-// routes/consultasElastic.js
-require('dotenv').config({ path: '../Elastic/.env' });
 const express = require('express');
 const router = express.Router();
 const client = require('../models/elasticClient');
+// const { getFromCache, saveToCache } = require('../../redis/redis');
 
-// GET /consultas?alerttype=alert&commune=Santiago
+
+// redis
+const redis = require('redis');
+
+const redisclient = redis.createClient({
+  url: 'redis://redis:6379' 
+});
+
+redisclient.connect().catch(console.error);
+
+async function getFromCache(key) {
+  const data = await redisclient.get(key);
+  if (!data) return null;
+  return JSON.parse(data);
+}
+
+async function saveToCache(key, value, ttlSeconds = 60) {
+  await redisclient.set(key, JSON.stringify(value), {
+    EX: ttlSeconds
+  });
+}
+
+
 router.get('/', async (req, res) => {
   try {
-    const alerttype = req.query.alerttype || req.query.alertType;
-    const commune   = req.query.commune;
-
-    const must = [];
-
-    if (alerttype) {
-      must.push({ term: { type: alerttype } });
+    const key = generateCacheKey(req.query);
+    
+    // verificacion de cache
+    const cached = await getFromCache(key);
+    if (cached) {
+      return res.json({
+        fromCache: true,
+        data: cached
+      });
     }
 
-    if (commune) {
-      must.push({ match: { 'data.commune': commune } });
-    }
-
-    const queryBody = must.length
-      ? { bool: { must } }
-      : { match_all: {} };
-
-    console.log('🔍 ES query:', JSON.stringify({ query: queryBody, sort: [{ createdAt: 'desc' }] }, null, 2));
-
+    //  No estaba en caché -> consulta a Elasticsearch
     const esResponse = await client.search({
       index: 'scrapperevents',
-      size: 1000,     
-      body: {
-        query: queryBody,
-        sort: [{ createdAt: { order: 'desc' } }]
-      }
+      body: buildElasticQuery(req.query)
     });
 
-    const result = esResponse.body ?? esResponse;
-    const hits   = result.hits.hits.map(hit => hit._source);
+    const hits = esResponse.hits.hits.map(doc => doc._source || doc);
 
-    res.json(hits);
-
+    //  Guardar en Redis y retornar
+    await saveToCache(key, hits, 15); // el ultimo parámetro es el TTL en segundos
+    return res.json({
+      fromCache: false,
+      data: hits
+    });
   } catch (error) {
-    console.error('Error al buscar en Elastic:', error);
-    res.status(500).json({ error: error.message });
+    console.error('Error en /consultas:', error);
+    res.status(500).json({ error: 'Error interno' });
   }
 });
+
+function generateCacheKey(queryObj) {
+  return JSON.stringify(queryObj);
+}
+
+function buildElasticQuery(queryObj) {
+  const must = [];
+  if (queryObj.alerttype) {
+    must.push({ match: { "type": queryObj.alerttype } });
+  }
+  if (queryObj.commune) {
+    must.push({ match: { "data.commune": queryObj.commune } });
+  }
+  return { query: { bool: { must } }, size: 1000 };
+}
 
 module.exports = router;
 

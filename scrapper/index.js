@@ -21,6 +21,7 @@ async function importCsvOnStartup() {
   const alerts = [];
   const timestamp = new Date().toISOString();
 
+  // lectura del CSV para poder indexar a elastic
   await new Promise((resolve, reject) => {
     fs.createReadStream(filePath)
       .pipe(csv({

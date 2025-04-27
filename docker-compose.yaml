@@ -51,8 +51,14 @@ services:
       ELASTIC_URL: "http://es01:9200"
       ELASTIC_USER: "elastic"
       ELASTIC_PASS: "changeme"
-
-
+  
+  redis:
+    image: redis:latest
+    container_name: redis
+    networks:
+      - elastic
+    ports:
+      - "6379:6379"
 
 networks:
   elastic:

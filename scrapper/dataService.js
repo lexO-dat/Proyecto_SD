@@ -4,6 +4,7 @@ const { Client } = require('@elastic/elasticsearch');
 
 console.log(process.env.ELASTIC_URL, process.env.ELASTIC_USER, process.env.ELASTIC_PASS);
 
+// variables de entorno y conexión a elastic
 const client = new Client({
   node: process.env.ELASTIC_URL,
   auth: {
@@ -20,8 +21,8 @@ function sleep(ms) {
 }
 
 /**
- * Envío de los datos a Elasticsearch usando Bulk API y lotes.
- */
+ * Envío de los datos a Elasticsearch
+*/
 async function processTrafficData(data, batchSize = 1000) {
   const bulkOps = [];
   const timestamp = new Date().toISOString();

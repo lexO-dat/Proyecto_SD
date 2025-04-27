@@ -1,6 +1,7 @@
 // browser.js
 const puppeteer = require('puppeteer');
 
+// configuracions iniciales de puppeteer
 async function initBrowser() {
   return await puppeteer.launch({
     headless: true,
