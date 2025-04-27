@@ -22,7 +22,7 @@ function sleep(ms) {
 /**
  * Envío de los datos a Elasticsearch usando Bulk API y lotes.
  */
-async function processTrafficData(data, batchSize = 50) {
+async function processTrafficData(data, batchSize = 1000) {
   const bulkOps = [];
   const timestamp = new Date().toISOString();
 
@@ -50,8 +50,6 @@ async function processTrafficData(data, batchSize = 50) {
         data: {
           commune: alert.city,
           streetName: alert.street,
-          streetEnd: '',
-          speedKmh: '',
           alertType: alert.type
         },
         createdAt: timestamp
