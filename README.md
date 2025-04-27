@@ -5,10 +5,37 @@ Para instalar las dependencias del scrapper usa:
 cd /scrapper/
 npm install
 ```
-
-Then, to run the app run:
+luego, para correr el servidor:
 ``` bash
-node scrapper.js
+node index.js
 ```
 
-In this version the scrapper just save all the scanned data into a csv :)
+# Db server 
+Para instalar las dependencias del modulo de la db:
+
+``` bash
+cd Elastic
+npm install
+```
+
+luego, para correr el servidor:
+``` bash
+node server.js
+```
+
+curls para probar:
+``` bash
+curl 'http://localhost:3000/consultas'
+```
+
+``` bash
+curl 'http://localhost:3000/consultas?alerttype=alert'
+```
+
+``` bash
+curl 'http://localhost:3000/consultas?commune=Santiago'
+```
+
+``` bash
+curl 'http://localhost:3000/consultas?alerttype=alert&commune=Santiago'
+```
