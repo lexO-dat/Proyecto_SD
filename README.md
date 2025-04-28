@@ -41,7 +41,7 @@ Es recomendable esperar a que el scraper haya comenzado a procesar los datos de 
 ```bash
 node randomGenerator.js 500 pareto 0.2 0.1 0.05
 ```
-La rama main está preparada para emplear LRU (allkeys-lru), mientras que la rama random_metric utiliza la política aleatoria (allkeys-random). 
+La rama main está preparada para emplear LRU (allkeys-lru), mientras que la rama random_metrica utiliza la política aleatoria (allkeys-random). 
 
 ## 📡 Scraper
 **Instalar dependencias**
