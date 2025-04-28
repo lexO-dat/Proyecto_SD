@@ -25,7 +25,14 @@ async function saveToCache(key, value, ttlSeconds = 20) {
   });
 }
 
-
+// url de la api: http://localhost:3000/consultas/
+/*
+// parametros de la consulta:
+type: tipo de evento (jam o alert)
+commune: comuna del evento (Santiago, Valparaíso, etc)
+streetName: calle del evento (Alameda, etc)
+alertType: tipo de alerta (policia, hazard, etc)
+*/
 router.get('/', async (req, res) => {
   try {
     const key = generateCacheKey(req.query);
@@ -65,12 +72,27 @@ function generateCacheKey(queryObj) {
 
 function buildElasticQuery(queryObj) {
   const must = [];
-  if (queryObj.alerttype) {
-    must.push({ match: { "type": queryObj.alerttype } });
+
+  // Filtrado por el tipo de documento: "alert" o "jam"
+  if (queryObj.type) {
+      must.push({ match: { "type": queryObj.type } });
   }
+
+  // Filtrado por el subtipo alert: por ejemplo, policia, hazard, etc.
+  if (queryObj.alertType) {
+      must.push({ match: { "data.alertType": queryObj.alertType } });
+  }
+
+  // Filtrado por nombre de calle
+  if (queryObj.streetName) {
+      must.push({ match: { "data.streetName": queryObj.streetName } });
+  }
+
+  // Filtrado por comuna
   if (queryObj.commune) {
-    must.push({ match: { "data.commune": queryObj.commune } });
+      must.push({ match: { "data.commune": queryObj.commune } });
   }
+
   return { query: { bool: { must } }, size: 1000 };
 }
 
@@ -79,10 +101,8 @@ module.exports = router;
 /*
 testeo:
 
-tipos de eventos: jam y alert
-
 curl 'http://localhost:3000/consultas' -> retorna todos los eventos con un limit de 1000 
-curl 'http://localhost:3000/consultas?alerttype=alert' -> retorna todos los eventos de tipo alert
+curl 'http://localhost:3000/consultas?alertType=POLICE' -> retorna todos los eventos de tipo POLICE
 curl 'http://localhost:3000/consultas?commune=Santiago' -> retorna todos los eventos de la comuna de Santiago
-curl 'http://localhost:3000/consultas?alerttype=alert&commune=Santiago' -> retorna todos los eventos de tipo alert en la comuna de Santiago
+curl 'http://localhost:3000/consultas?type=alert&commune=Santiago' -> retorna todos los eventos alert en la comuna de Santiago
 */

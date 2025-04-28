@@ -15,7 +15,7 @@ Para ejecutar la funcion de generacion de trafico usa:
 ``` bash
 cd generator
 npm i
-node node randomGenerator.js <nro de queries> <prob. de incluir comuna> <prob. de incluir alerta>
+node randomGenerator.js <nro de queries> <prob. de incluir comuna> <prob. de incluir alerta> <prob. de incluir tipo>
 ```
 
 Esto enviara las x queries cada 40 ms
