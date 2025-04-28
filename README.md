@@ -9,6 +9,16 @@ Esto ejecutará:
 - El server del scraper el cual primero indexará el csv en batches de a 1000 para luego comenzar a scrapear waze.
 - El server de consultas para la base de datos en localhost:8080, a este server se le pueden hacer las consultas que están especificadas más abajo.
 
+# Random generator
+Para ejecutar la funcion de generacion de trafico usa:
+``` bash
+cd generator
+npm i
+node node randomGenerator.js <nro de queries> <prob. de incluir comuna> <prob. de incluir alerta>
+```
+
+Esto enviara las x queries cada 40 ms
+
 # Scrapper
 Para instalar las dependencias del scrapper usa:
 
