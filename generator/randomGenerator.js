@@ -119,6 +119,7 @@ async function sendRandomQuery() {
     // Sólo mostramos la URL y si vino de cache
     console.log(`[QUERY]  ${url}`);
     console.log(`[CACHED] ${result.fromCache}`);
+    return result.fromCache;
   } catch (err) {
     console.error('[ERROR]', err);
   }
