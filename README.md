@@ -1,63 +1,75 @@
 # Compose
-Para ejecutar el compose solo usa:
-``` bash
+
+## 📋 Prerrequisitos
+- **Docker** y **Docker Compose** instalados.
+- **Node.js** (v14+) para los módulos JavaScript.
+- Permisos de superusuario si ejecutas Docker con `sudo`.
+
+---
+
+## 🚀 Levantar los servicios con Docker Compose
+
+1. **Detener contenedores activos**  
+   ```bash
+   sudo docker compose down
+   ```
+2. **Construir y arrancar**
+```bash
 sudo docker compose build --no-cache
 sudo docker compose up
 ```
+Esto iniciará:
 
-Esto ejecutará: 
-- elastic en https:localhost:9200 con el user elastic y la pass changeme.
-- El server del scraper el cual primero indexará el csv en batches de a 1000 para luego comenzar a scrapear waze.
-- El server de consultas para la base de datos en localhost:8080, a este server se le pueden hacer las consultas que están especificadas más abajo.
+- Elasticsearch en https://localhost:9200 (usuario: elastic, contraseña: changeme)
 
-# Random generator
-Para ejecutar la funcion de generacion de trafico usa:
-``` bash
+- Scraper:
+1. Indexa traffic_data.csv en batches de 1 000 registros.
+2. Comienza a scrapear datos de Waze.
+
+- API de consultas en http://localhost:8080
+
+## 🔀 Generador aleatorio de tráfico
+
+```bash
 cd generator
-npm i
-node randomGenerator.js <nro de queries> <prob. de incluir comuna> <prob. de incluir alerta> <prob. de incluir tipo>
+npm install
+node randomGenerator.js <número de queries> <p₁: probabilidad de comuna> <p₂: probabilidad de alerta> <p₃: probabilidad de tipo>
 ```
+Envía una consulta cada 40 ms.
 
-Esto enviara las x queries cada 40 ms
-
-# Scrapper
-Para instalar las dependencias del scrapper usa:
-
-``` bash
-cd /scrapper/
+-Ejemplo:
+```bash
+node randomGenerator.js 500 0.2 0.1 0.05
+```
+## 📡 Scraper
+**Instalar dependencias**
+```bash
+cd scrapper
 npm install
 ```
-luego, para correr el servidor:
-``` bash
+Arrancar el servicio
+```bash
 node index.js
 ```
+## 🗄️ Servidor de Base de Datos (Elastic)
 
-# Db server 
-Para instalar las dependencias del modulo de la db:
-
-``` bash
+**Instalar dependencias**
+```bash
 cd Elastic
 npm install
 ```
-
-luego, para correr el servidor:
-``` bash
+Arrancar el servidor
+```bash
 node server.js
 ```
+## ⚙️ Pruebas con `curl`
 
-curls para probar:
-``` bash
-curl 'http://localhost:3000/consultas'
+**Obtener todas las consultas:**
+```bash
+curl 'http://localhost:8080/consultas'
+```
+**Obtener todas las consultas:**
+```bash
+curl 'http://localhost:8080/consultas?alerttype=alert'
 ```
 
-``` bash
-curl 'http://localhost:3000/consultas?alerttype=alert'
-```
-
-``` bash
-curl 'http://localhost:3000/consultas?commune=Santiago'
-```
-
-``` bash
-curl 'http://localhost:3000/consultas?alerttype=alert&commune=Santiago'
-```
