@@ -33,9 +33,9 @@ Esto iniciará:
 ```bash
 cd generator
 npm install
-node randomGenerator.js <número de queries> <p₁: probabilidad de comuna> <p₂: probabilidad de alerta> <p₃: probabilidad de tipo>
+node randomGenerator.js <número de queries> <distribucion> <p₁: probabilidad de comuna> <p₂: probabilidad de alerta> <p₃: probabilidad de tipo>
 ```
-Envía una consulta cada 40 ms.
+Las distribuciones pueden ser: 'pareto' o 'normal'
 
 -Ejemplo:
 ```bash
