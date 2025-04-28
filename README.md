@@ -1,6 +1,7 @@
 # Compose
 Para ejecutar el compose solo usa:
 ``` bash
+sudo docker compose build --no-cache
 sudo docker compose up
 ```
 
