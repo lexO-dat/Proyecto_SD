@@ -35,12 +35,14 @@ cd generator
 npm install
 node randomGenerator.js <número de queries> <distribucion> <p₁: probabilidad de comuna> <p₂: probabilidad de alerta> <p₃: probabilidad de tipo>
 ```
-Las distribuciones pueden ser: 'pareto' o 'normal'
+Es recomendable esperar a que el scraper haya comenzado a procesar los datos de Waze antes de ejecutar el comando del generador de tráfico.
 
 -Ejemplo:
 ```bash
 node randomGenerator.js 500 0.2 0.1 0.05
 ```
+La rama main está preparada para emplear LRU (allkeys-lru), mientras que la rama random_metric utiliza la política aleatoria (allkeys-random). 
+
 ## 📡 Scraper
 **Instalar dependencias**
 ```bash
