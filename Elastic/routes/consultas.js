@@ -19,7 +19,7 @@ async function getFromCache(key) {
   return JSON.parse(data);
 }
 
-async function saveToCache(key, value, ttlSeconds = 60) {
+async function saveToCache(key, value, ttlSeconds = 20) {
   await redisclient.set(key, JSON.stringify(value), {
     EX: ttlSeconds
   });
