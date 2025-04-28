@@ -71,15 +71,16 @@ const TYPES = [
 ];
 
 // ver si fueron insertados los parametros correctamente (FALTA STREETNAME)
-if (process.argv.length < 6) {
-  console.error('Uso: node randomGenerator.js <nro de queries> <prob. de incluir comuna> <prob. de incluir alerta> <prob. de incluir tipo>');
+if (process.argv.length < 7) {
+  console.error('Uso: node randomGenerator.js <nro de queries> <distribucion> <prob. de incluir comuna> <prob. de incluir alerta> <prob. de incluir tipo>');
   process.exit(1);
 }
 
 const numQueries   = parseInt(process.argv[2], 10);
-const probCommune  = parseFloat(process.argv[3]);
-const probAlertType= parseFloat(process.argv[4]);
-const probType     = parseFloat(process.argv[5]);
+const distribution = process.argv[3];
+const probCommune  = parseFloat(process.argv[4]);
+const probAlertType= parseFloat(process.argv[5]);
+const probType     = parseFloat(process.argv[6]);
 // const probStreetName = parseFloat(process.argv[6]);
 
 function buildRandomQueryUrl(baseUrl = 'http://localhost:8080/consultas') {
@@ -125,15 +126,41 @@ async function sendRandomQuery() {
   }
 }
 
+function normalRandom(mean, stdDev) {
+  const u1 = Math.random();
+  const u2 = Math.random();
+  const z0 = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+  return mean + z0 * stdDev;
+}
+
 // Ejecuta la función sendRandomQuery numQueries veces con un delay de 40ms entre cada llamada y cuenta los hits en cache
 (async () => {
-  let conteo=0;
+  let conteo = 0;
+  const x_m = 40;
+  const alpha = 2;
+
   for (let i = 0; i < numQueries; i++) {
     let hit = await sendRandomQuery();
     if (hit) {
       conteo++;
     }
-    await new Promise(resolve => setTimeout(resolve, 40));
+    
+    // distribucion  pareto
+    if (distribution == 'pareto'){
+      const u = Math.random();
+      const delay = x_m / Math.pow(u, 1 / alpha);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+
+    // distribucion normal
+    if (distribution === 'normal'){
+      const sigma = 10;
+      let delay = normalRandom(x_m, sigma);
+      if(delay < 0) {
+        delay = 0;
+      }
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
   }
   console.log(`Total de hits en cache: ${conteo} de ${numQueries}`);
 })();
