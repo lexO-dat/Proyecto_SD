@@ -19,7 +19,7 @@ async function getFromCache(key) {
   return JSON.parse(data);
 }
 
-async function saveToCache(key, value, ttlSeconds = 20) {
+async function saveToCache(key, value, ttlSeconds) {
   await redisclient.set(key, JSON.stringify(value), {
     EX: ttlSeconds
   });
@@ -55,7 +55,7 @@ router.get('/', async (req, res) => {
     const hits = esResponse.hits.hits.map(doc => doc._source || doc);
 
     //  Guardar en Redis y retornar
-    await saveToCache(key, hits, 15); // el ultimo parámetro es el TTL en segundos
+    await saveToCache(key, hits, 60); // el ultimo parámetro es el TTL en segundos
     return res.json({
       fromCache: false,
       data: hits

@@ -57,11 +57,8 @@ const COMMUNES = [
 ];
 
 const ALERT_TYPES = [
-  'HAZARD',
   'POLICE',
-  'CHIT_CHAT',
   'JAM',
-  'ROAD_CLOSED',
   'ACCIDENT'
 ];
 
@@ -133,7 +130,7 @@ function normalRandom(mean, stdDev) {
   return mean + z0 * stdDev;
 }
 
-// Ejecuta la función sendRandomQuery numQueries veces con un delay de 40ms entre cada llamada y cuenta los hits en cache
+// Ejecuta la función sendRandomQuery numQueries veces y cuenta los hits en cache
 (async () => {
   let conteo = 0;
   const x_m = 40;

@@ -59,10 +59,7 @@ services:
       - elastic
     ports:
       - "6379:6379"
-    command: >
-      redis-server --appendonly no
-                   --maxmemory 256mb
-                   --maxmemory-policy allkeys-lru
+    command: ["redis-server", "--appendonly", "no", "--maxmemory", "50mb", "--maxmemory-policy", "allkeys-lru"]
 networks:
   elastic:
     driver: bridge
