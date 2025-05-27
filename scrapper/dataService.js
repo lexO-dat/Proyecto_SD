@@ -37,7 +37,11 @@ async function processTrafficData(data, batchSize = 1000) {
           streetName: jam.street,
           streetEnd: jam.endNode,
           speedKmh: jam.speedKMH,
-          alertType: 'JAM'
+          alertType: 'JAM',
+          idEvent: jam.idEvent,
+          hour: jam.hour,
+          idUser: jam.idUser
+
         },
         createdAt: timestamp
       });
@@ -51,7 +55,10 @@ async function processTrafficData(data, batchSize = 1000) {
         data: {
           commune: alert.city,
           streetName: alert.street,
-          alertType: alert.type
+          alertType: alert.type,
+          idEvent: alert.idEvent,
+          hour: alert.hour,
+          idUser: alert.idUser
         },
         createdAt: timestamp
       });

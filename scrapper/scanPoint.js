@@ -23,6 +23,7 @@ async function scanPoint(page) {
     if (response.url().includes('/api/georss')) {
       try {
         const data = await response.json();
+        console.log(data);
         await processTrafficData(data);
       } catch (err) {
         console.error('Failed to parse georss JSON:', err);

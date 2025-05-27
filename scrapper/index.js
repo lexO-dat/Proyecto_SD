@@ -60,7 +60,7 @@ async function importCsvOnStartup() {
 
 (async () => {
   try {
-    await importCsvOnStartup();
+    // await importCsvOnStartup();
 
     const browser = await initBrowser();
 
