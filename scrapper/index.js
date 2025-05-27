@@ -12,11 +12,11 @@ const { regionZones, constructURL } = require('./regionZones');
 async function importCsvOnStartup() {
   const filePath = path.join(__dirname, 'traffic_data.csv');
   if (!fs.existsSync(filePath)) {
-    console.log('ℹ️ No hay archivo traffic_data.csv, se omite importación');
+    console.log('ℹNo hay archivo traffic_data.csv, se omite importación');
     return;
   }
 
-  console.log('📥 Importando traffic_data.csv...');
+  console.log('Importando traffic_data.csv...');
   const jams = [];
   const alerts = [];
   const timestamp = new Date().toISOString();
@@ -25,22 +25,27 @@ async function importCsvOnStartup() {
   await new Promise((resolve, reject) => {
     fs.createReadStream(filePath)
       .pipe(csv({
-        headers: ['TYPE','COMMUNE','STREET_NAME','STREET_END','SPEED_KMH','ALERT_TYPE'],
+        headers: ['ID', 'TYPE', 'SUB_TYPE', 'COMMUNE', 'CITY', 'COUNTRY', 'STREET_NAME', 'DESCRIPTION', 'LATITUDE', 'LONGITUDE', 'USER', 'TIMESTAMP'],
         skipLines: 0,
       }))
       .on('data', row => {
-        if (row.TYPE === 'jam') {
-          jams.push({
-            city: row.COMMUNE,
-            street: row.STREET_NAME,
-            endNode: row.STREET_END,
-            speedKMH: row.SPEED_KMH
-          });
-        } else if (row.TYPE === 'alert') {
+        // eliminamos el tipo 'jam'
+        if (row.TYPE === 'alert') {
           alerts.push({
-            city: row.COMMUNE,
+            id: row.ID,
+            type: row.TYPE,
+            subtype: row.SUB_TYPE,
+            city: row.CITY,
+            country: row.COUNTRY,
+            commune: row.COMMUNE,
             street: row.STREET_NAME,
-            type: row.ALERT_TYPE
+            description: row.DESCRIPTION,
+            location: {
+              x: parseFloat(row.LATITUDE),
+              y: parseFloat(row.LONGITUDE),
+            },
+            reportBy: row.USER,
+            timestamp: row.TIMESTAMP ? new Date(row.TIMESTAMP).toISOString() : timestamp,
           });
         }
       })
@@ -51,12 +56,11 @@ async function importCsvOnStartup() {
   try {
     await processTrafficData({ jams, alerts });
     fs.unlinkSync(filePath);
-    console.log('✅ traffic_data.csv importado y eliminado');
+    console.log('traffic_data.csv importado y eliminado');
   } catch (err) {
-    console.error('❌ Error indexando CSV:', err);
+    console.error('Error indexando CSV:', err);
   }
 }
-
 
 (async () => {
   try {
@@ -66,17 +70,17 @@ async function importCsvOnStartup() {
 
     while (true) {
       for (const zone of regionZones) {
-        console.log(`\n🔍 Escaneando: ${zone.lat}, ${zone.lng}`);
+        console.log(`\nEscaneando: ${zone.lat}, ${zone.lng}`);
         const page = await openPage(browser, constructURL(zone));
         try {
           await scanPoint(page);
-          console.log(`✅ Completado: ${zone.lat}, ${zone.lng}`);
+          console.log(`Completado: ${zone.lat}, ${zone.lng}`);
         } catch (err) {
-          console.error(`⚠️ Error escaneando ${zone.lat},${zone.lng}:`, err);
+          console.error(`Error escaneando ${zone.lat},${zone.lng}:`, err);
         }
         await page.close().catch(() => {});
       }
-      console.log('🔄 Reiniciando ciclo...');
+      console.log('Reiniciando ciclo...');
       await sleep(5000);
     }
   } catch (err) {

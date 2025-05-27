@@ -11,5 +11,5 @@ app.use(bodyParser.json());
 app.use('/consultas', consultasRoutes);
 
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });

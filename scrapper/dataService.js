@@ -27,45 +27,32 @@ async function processTrafficData(data, batchSize = 1000) {
   const bulkOps = [];
   const timestamp = new Date().toISOString();
 
-  if (Array.isArray(data.jams)) {
-    for (const jam of data.jams) {
-      bulkOps.push({ index: { _index: 'scrapperevents' } });
-      bulkOps.push({
-        type: 'jam',
-        data: {
-          commune: jam.city,
-          streetName: jam.street,
-          streetEnd: jam.endNode,
-          speedKmh: jam.speedKMH,
-          alertType: 'JAM',
-          idEvent: jam.idEvent,
-          hour: jam.hour,
-          idUser: jam.idUser
-
-        },
-        createdAt: timestamp
-      });
-    }
-  }
+  // nueva version de extraccion de datos agregamos : location, reportBy, pubMillis, alertSubtype, timestamp, user
   if (Array.isArray(data.alerts)) {
     for (const alert of data.alerts) {
       bulkOps.push({ index: { _index: 'scrapperevents' } });
       bulkOps.push({
         type: 'alert',
         data: {
+          country: alert.country,
           commune: alert.city,
           streetName: alert.street,
           alertType: alert.type,
-          idEvent: alert.idEvent,
-          hour: alert.hour,
-          idUser: alert.idUser
+          alertSubtype: alert.subtype || '',
+          description: alert.reportDescription || '',
+          location: {
+            lat: alert.location.x || '',
+            lon: alert.location.y || '',
+          },
+          idEvent: alert.id,
+          timestamp: alert.pubMillis ? new Date(alert.pubMillis).toISOString() : timestamp,
+          user: alert.reportBy || 'guest',
         },
-        createdAt: timestamp
       });
     }
   }
 
-  // Indexación en lotes
+  // Indexación en lotes en elasticsearch
   for (let i = 0; i < bulkOps.length; i += batchSize * 2) {
     const batch = bulkOps.slice(i, i + batchSize * 2);
     try {
@@ -80,10 +67,10 @@ async function processTrafficData(data, batchSize = 1000) {
           }
         });
       } else {
-        console.log(`✅ Lote ${Math.floor(i / (batchSize * 2)) + 1} indexado (${batch.length / 2} docs)`);
+        console.log(`Lote ${Math.floor(i / (batchSize * 2)) + 1} indexado (${batch.length / 2} docs)`);
       }
     } catch (err) {
-      console.error(`⚠️ Bulk error lote ${Math.floor(i / (batchSize * 2)) + 1}:`, err);
+      console.error(`Bulk error lote ${Math.floor(i / (batchSize * 2)) + 1}:`, err);
     }
     await sleep(500);
   }
