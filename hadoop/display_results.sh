@@ -70,22 +70,3 @@ else
     echo "   Sample timestamp analysis needed for debugging"
 fi
 echo
-
-git add .
-git commit -m "feat: Implementado análisis de datos de tráfico con Hadoop y Pig"
--m "# Features:
-- ambiente de desarrollo con Docker Compose para Hadoop y Pig
-- analisis de datos duplicados y filtrado de eventos basado en ID con Apache Pig
-
-# Pipeline para procesado de datos:
-- filter_data.pig: filtrado de los eventos por ID (18,390 → 5,862)
-- process_events.pig: generado de las analisitcas y procesado de los eventos (por comuna, sub-tipo, hora -> con bug)
-- export_events.sh: script para pre-procesar los datos y exportarlos a CSV (aqui irá el import desde ElasticSearch)
-
-# Scripts:
-- run_analysis.sh: script para ejecutar el compose y ejecutar el análisis
-- display_results.sh: script para mostrar los resultados de la ejecucion
-
-# Cosas por hacer:
-- Integrar el compose y los docker de hadoop al compose general del proyecto
-- Integrar elastic con hadoop (hacer que exporte en tiempo real el csv desde elastic para hacer el filtrado y procesado)"
