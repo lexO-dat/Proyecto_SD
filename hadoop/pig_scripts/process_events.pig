@@ -79,20 +79,29 @@ STORE type_subtype_sorted INTO '/pig/results/type_subtype_analysis' USING PigSto
 -- -----------------------------------
 
 -- Análisis por hora del día
--- Limpiar las comillas del timestamp y extraer la hora
--- Formato esperado: "2025-06-02T00:02:02.460Z" -> posición 12-13 para la hora
+-- Procesar timestamps y extraer componentes de tiempo usando approach más simple
+-- Formato esperado: "2025-06-02T12:06:36.000Z"
+
+-- Paso 1: Extraer hora directamente usando REGEX_EXTRACT
 events_with_hour = FOREACH clean_events GENERATE
     *,
     REPLACE(timestamp, '"', '') AS clean_timestamp,
-    SUBSTRING(REPLACE(timestamp, '"', ''), 11, 2) AS hour_str,
-    (int)SUBSTRING(REPLACE(timestamp, '"', ''), 11, 2) AS hour_int;
+    REGEX_EXTRACT(REPLACE(timestamp, '"', ''), '\\d{4}-\\d{2}-\\d{2}T(\\d{2}):', 1) AS hour_str;
 
--- Almacenar una muestra para debug
-sample_with_hour = LIMIT events_with_hour 10;
-STORE sample_with_hour INTO '/pig/results/hour_debug_sample' USING PigStorage(',');
+-- Paso 2: Convertir a entero
+events_with_hour_int = FOREACH events_with_hour GENERATE
+    *,
+    (hour_str IS NOT NULL AND hour_str != '' ? (int)hour_str : -1) AS hour_int;
+
+-- Debug: Almacenar muestra para verificar
+sample_debug = FOREACH (LIMIT events_with_hour_int 5) GENERATE
+    clean_timestamp,
+    hour_str,
+    hour_int;
+STORE sample_debug INTO '/pig/results/hour_debug_sample' USING PigStorage(',');
 
 -- Filtrar eventos con hora válida
-valid_timestamp_events = FILTER events_with_hour BY hour_int IS NOT NULL AND hour_int >= 0 AND hour_int < 24;
+valid_timestamp_events = FILTER events_with_hour_int BY hour_int >= 0 AND hour_int < 24;
 
 -- Contar eventos válidos para debug
 valid_count = FOREACH (GROUP valid_timestamp_events ALL) GENERATE COUNT(valid_timestamp_events);
