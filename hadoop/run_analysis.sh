@@ -4,14 +4,16 @@
 chmod +x export_events.sh
 chmod +x display_results.sh
 chmod +x run_analysis.sh
+chmod +x fetch_from_elastic.sh
 
-echo "=== Pig Data Analysis Script ==="
-echo "Building and running Pig analysis..."
+# Cambiar al directorio raíz del proyecto
+cd ..
 
-sudo docker compose down
-sudo docker compose build
-sudo docker compose up
+# Ejecutar solo el servicio de analytics usando el compose principal
+sudo docker compose --profile analytics up --build hadoop-analytics
 
 echo ""
+echo "Analisis completado, ejecuta ./hadoop/display_results.sh para ver los resultados."
 
-echo "Analisis completado, ejecuta ./display_results.sh para ver los resultados."
+# Volver al directorio hadoop
+cd hadoop

@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     rm -rf /var/lib/apt/lists/*
 
 COPY package*.json ./
-COPY traffic_data.csv ./
+COPY new.csv ./
 RUN npm install
 COPY . .
 

@@ -101,8 +101,14 @@ module.exports = router;
 /*
 testeo:
 
-curl 'http://localhost:3000/consultas' -> retorna todos los eventos con un limit de 1000 
-curl 'http://localhost:3000/consultas?alertType=POLICE' -> retorna todos los eventos de tipo POLICE
-curl 'http://localhost:3000/consultas?commune=Santiago' -> retorna todos los eventos de la comuna de Santiago
-curl 'http://localhost:3000/consultas?type=alert&commune=Santiago' -> retorna todos los eventos alert en la comuna de Santiago
+curl 'http://localhost:9200/consultas' -> retorna todos los eventos con un limit de 1000 
+curl 'http://localhost:9200/consultas?alertType=POLICE' -> retorna todos los eventos de tipo POLICE
+curl 'http://localhost:9200/consultas?commune=Santiago' -> retorna todos los eventos de la comuna de Santiago
+curl 'http://localhost:9200/consultas?type=alert&commune=Santiago' -> retorna todos los eventos alert en la comuna de Santiago
+
+curl -X GET "localhost:9200/scrapperevents/_search?pretty" -H 'Content-Type: application/json' -d'
+{
+  "query": { "match_all": {} },
+  "size": 1
+}'
 */

@@ -6,7 +6,11 @@ const client = new Client({
     username: process.env.ELASTIC_USER,
     password: process.env.ELASTIC_PASS
   },
-  tls: { rejectUnauthorized: false }
+  tls: {
+    rejectUnauthorized: false,
+    ca: undefined,            
+  },
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
-
-module.exports = client;

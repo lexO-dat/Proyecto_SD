@@ -10,13 +10,13 @@ const { scanPoint } = require('./scanPoint');
 const { regionZones, constructURL } = require('./regionZones');
 
 async function importCsvOnStartup() {
-  const filePath = path.join(__dirname, 'traffic_data.csv');
+  const filePath = path.join(__dirname, './new.csv');
   if (!fs.existsSync(filePath)) {
-    console.log('ℹNo hay archivo traffic_data.csv, se omite importación');
+    console.log('ℹNo hay archivo new.csv, se omite importación');
     return;
   }
 
-  console.log('Importando traffic_data.csv...');
+  console.log('Importando new.csv...');
   const jams = [];
   const alerts = [];
   const timestamp = new Date().toISOString();
@@ -29,34 +29,35 @@ async function importCsvOnStartup() {
         skipLines: 0,
       }))
       .on('data', row => {
-        // eliminamos el tipo 'jam'
-        if (row.TYPE === 'alert') {
           alerts.push({
-            id: row.ID,
+            id: row.ID || `auto_${Date.now()}_${Math.random()}`,
             type: row.TYPE,
-            subtype: row.SUB_TYPE,
-            city: row.CITY,
-            country: row.COUNTRY,
-            commune: row.COMMUNE,
-            street: row.STREET_NAME,
-            description: row.DESCRIPTION,
+            subtype: row.SUB_TYPE || '',
+            city: row.COMMUNE || row.CITY || '',          
+            country: row.COUNTRY || 'Chile',
+            commune: row.COMMUNE || '',
+            street: row.STREET_NAME || '',
+            reportDescription: row.DESCRIPTION || '',       
             location: {
-              x: parseFloat(row.LATITUDE),
-              y: parseFloat(row.LONGITUDE),
+              x: parseFloat(row.LATITUDE) || 0,
+              y: parseFloat(row.LONGITUDE) || 0,
             },
-            reportBy: row.USER,
-            timestamp: row.TIMESTAMP ? new Date(row.TIMESTAMP).toISOString() : timestamp,
-          });
-        }
+            reportBy: row.USER || 'guest',
+            timestamp: (() => {
+              if (!row.TIMESTAMP) return timestamp;
+              const date = new Date(row.TIMESTAMP);
+              return isNaN(date.getTime()) ? timestamp : date.toISOString();
+            })(),
+        });
       })
       .on('end', resolve)
       .on('error', reject);
   });
 
   try {
-    await processTrafficData({ jams, alerts });
+    await processTrafficData({ alerts });
     fs.unlinkSync(filePath);
-    console.log('traffic_data.csv importado y eliminado');
+    console.log('new.csv importado y eliminado');
   } catch (err) {
     console.error('Error indexando CSV:', err);
   }
@@ -64,7 +65,7 @@ async function importCsvOnStartup() {
 
 (async () => {
   try {
-    // await importCsvOnStartup();
+    await importCsvOnStartup();
 
     const browser = await initBrowser();
 

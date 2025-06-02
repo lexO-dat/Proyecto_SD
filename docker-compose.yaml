@@ -1,28 +1,32 @@
 services:
   es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch-wolfi:9.0.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.0.1
     container_name: es01
-    networks:
-      - elastic
-    ports:
-      - "9200:9200"
     environment:
       - node.name=es01
+      - cluster.name=docker-cluster
       - discovery.type=single-node
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
-      - bootstrap.memory_lock=true
       - ELASTIC_PASSWORD=changeme
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
     healthcheck:
-      test: ["CMD-SHELL", "sleep 15"]
+      test: ["CMD-SHELL", "sleep 20"]
       interval: 1s                    
-      timeout: 20s                     
-      retries: 1                       
+      timeout: 21s                     
+      retries: 1     
     ulimits:
       memlock:
         soft: -1
         hard: -1
     volumes:
       - esdata:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - elastic
 
   scrapper:
     build: ./scrapper
@@ -60,6 +64,25 @@ services:
     ports:
       - "6379:6379"
     command: ["redis-server", "--appendonly", "no", "--maxmemory", "50mb", "--maxmemory-policy", "allkeys-lru"]
+
+  hadoop-analytics:
+    build:
+      context: ./hadoop
+      dockerfile: Dockerfile
+    container_name: hadoop-analytics
+    volumes:
+      - ./hadoop:/pig/data
+      - ./hadoop/results:/pig/results
+    depends_on:
+      es01:
+        condition: service_healthy
+    environment:
+      - JAVA_HOME=/usr/local/openjdk-8
+    networks:
+      - elastic
+    profiles:
+      - analytics
+
 networks:
   elastic:
     driver: bridge

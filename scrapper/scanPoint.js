@@ -29,12 +29,10 @@ async function scanPoint(page) {
       }
       
       const data = await response.json();
-      console.log(data);
-      if (data && data.alerts) {
-        await scanintocsv(data);
-      } else {
-        console.warn('No alerts found in response data');
-      } 
+      // console.log(data);
+      // await scanintocsv(data); // insertamos la data al csv (para debugueo, ya que el csv es para importar a elastic en el docker y  que este no este vacío)
+      await processTrafficData(data); // insertamos la data a elastic directamente
+      
       done = true;
     } catch (error) {
       console.debug('Skipped non-JSON response or parsing error:', error.message);

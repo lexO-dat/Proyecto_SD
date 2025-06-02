@@ -32,7 +32,7 @@ async function processTrafficData(data, batchSize = 1000) {
     for (const alert of data.alerts) {
       bulkOps.push({ index: { _index: 'scrapperevents' } });
       bulkOps.push({
-        type: 'alert',
+        type: alert.type,
         data: {
           country: alert.country,
           commune: alert.city,

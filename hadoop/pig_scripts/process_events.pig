@@ -78,12 +78,14 @@ STORE type_subtype_sorted INTO '/pig/results/type_subtype_analysis' USING PigSto
 
 -- -----------------------------------
 
--- Análisis por hora del día (esto no está funcionando xd)
--- Extraer la hora como entero desde el timestamp (posición 11 y 12 del string)
+-- Análisis por hora del día
+-- Limpiar las comillas del timestamp y extraer la hora
+-- Formato esperado: "2025-06-02T00:02:02.460Z" -> posición 12-13 para la hora
 events_with_hour = FOREACH clean_events GENERATE
     *,
-    SUBSTRING(timestamp, 11, 2) AS hour_str,
-    (int)SUBSTRING(timestamp, 11, 2) AS hour_int;
+    REPLACE(timestamp, '"', '') AS clean_timestamp,
+    SUBSTRING(REPLACE(timestamp, '"', ''), 11, 2) AS hour_str,
+    (int)SUBSTRING(REPLACE(timestamp, '"', ''), 11, 2) AS hour_int;
 
 -- Almacenar una muestra para debug
 sample_with_hour = LIMIT events_with_hour 10;

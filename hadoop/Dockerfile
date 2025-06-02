@@ -3,6 +3,9 @@ FROM openjdk:8-jdk
 # Instalar dependencias necesarias
 RUN apt-get update && apt-get install -y \
     wget \
+    bc \
+    curl \
+    jq \
     && rm -rf /var/lib/apt/lists/*
 
 # Configurar variables de entorno de Java
@@ -32,14 +35,9 @@ ENV PIG_CLASSPATH=${PIG_HOME}/lib
 WORKDIR /pig
 RUN mkdir -p results data
 
-# Copiar scripts y datos
-COPY ./pig_scripts/process_events.pig .
-COPY ./pig_scripts/filter_data.pig .
-COPY export_events.sh .
-COPY new.csv data/
+# IMPORTANTE: Los scripts y datos se montan como volúmenes, no se copian
+# Solo dar permisos por defecto
+RUN chmod +x /pig/data/*.sh 2>/dev/null || true
 
-# Dar permisos de ejecución al script de exportación
-RUN chmod +x export_events.sh
-
-# Primero filtrado, despues procesado
-CMD ["/bin/bash", "-c", "pig -x local filter_data.pig && ./export_events.sh && pig -x local process_events.pig"]
+# Comando que se ejecuta con volúmenes montados
+CMD ["/bin/bash", "-c", "chmod +x /pig/data/*.sh && cd /pig/data && ./fetch_from_elastic.sh && rm -rf /pig/data/clean_new /pig/results/* && pig -x local pig_scripts/filter_data.pig && ./export_events.sh && pig -x local pig_scripts/process_events.pig"]
