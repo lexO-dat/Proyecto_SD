@@ -42,7 +42,7 @@ Esto iniciará los siguientes componentes:
 
 ## 🧠 Filtrado y análisis distribuido (Apache Pig)
 
-### 1. Asegurarse de que Docker esté corriendo y que `traffic_data.csv` ya esté indexado.
+### 1. Asegurarse de que Docker esté corriendo y que `traffic_data.csv` ya esté indexado en Elasticsearch.
 
 ### 2. Ejecutar el análisis
 ```bash
@@ -57,11 +57,18 @@ Este script ejecuta el perfil `hadoop-analytics` de Docker Compose y realiza:
 3. Procesamiento analítico (`process_events.pig`)
 
 ### 3. Visualizar los resultados
+
+Una vez finalizado el análisis, espera a que el sistema muestre el mensaje:
+
+> `Análisis completado, ejecuta ./hadoop/display_results.sh para ver los resultados.`
+
+Luego, ejecuta el siguiente comando para visualizar los resultados procesados:
+
 ```bash
 ./display_results.sh
 ```
 
-Esto mostrará los archivos procesados generados por Apache Pig.
+Este script mostrará en consola los archivos de salida generados por Apache Pig, los cuales contienen las consultas analíticas realizadas, como el conteo de eventos por tipo, distribución por comuna y evolución temporal. Estas salidas representan la fase final del pipeline de análisis.
 
 ---
 
