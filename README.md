@@ -1,10 +1,10 @@
-# 📦 Proyecto Sistemas Distribuidos – Entrega 2
+# Proyecto Sistemas Distribuidos – Entrega 2
 
 Este sistema permite recolectar, almacenar, filtrar y analizar eventos de tráfico extraídos desde Waze, utilizando tecnologías distribuidas como **Elasticsearch**, **Apache Pig** y **Hadoop**. A través de un pipeline completo, los datos se normalizan, se procesan en paralelo y se preparan para la toma de decisiones geográficas y temporales.
 
 ---
 
-## ✅ Requisitos previos
+## Requisitos previos
 
 - **Docker** y **Docker Compose** instalados.
 - **Node.js v14+** para ejecutar los módulos JavaScript.
@@ -12,7 +12,7 @@ Este sistema permite recolectar, almacenar, filtrar y analizar eventos de tráfi
 
 ---
 
-## 🚀 Despliegue con Docker Compose
+## Despliegue con Docker Compose
 
 ### 1. Detener contenedores previos (opcional)
 ```bash
@@ -40,7 +40,7 @@ Esto iniciará los siguientes componentes:
 
 ---
 
-## 🧠 Filtrado y análisis distribuido (Apache Pig)
+## Filtrado y análisis distribuido (Apache Pig)
 
 ### 1. Asegurarse de que Docker esté corriendo y que `traffic_data.csv` ya esté indexado en Elasticsearch.
 
@@ -72,7 +72,7 @@ Este script mostrará en consola los archivos de salida generados por Apache Pig
 
 ---
 
-## 🔍 Scraper – Recolección de eventos
+## Scraper – Recolección de eventos
 
 Ubicación: `Proyecto_SD/scrapper/`
 
@@ -87,7 +87,7 @@ El scraper extrae datos desde Waze usando Puppeteer, procesándolos y enviándol
 
 ---
 
-## 🗄️ Servidor de consultas internas (Elasticsearch)
+## Servidor de consultas internas (Elasticsearch)
 
 Ubicación: `Proyecto_SD/Elastic/`
 
@@ -108,7 +108,7 @@ curl 'http://localhost:8080/consultas?alerttype=alert'
 
 ---
 
-## 🧪 Generador de tráfico aleatorio (Entrega 1)
+## Generador de tráfico aleatorio (Entrega 1)
 
 Ubicación: `Proyecto_SD/generator/`
 
