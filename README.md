@@ -1,91 +1,127 @@
-# Compose
+# 📦 Proyecto Sistemas Distribuidos – Entrega 2
 
-## Prerrequisitos
-- **Docker** y **Docker Compose** instalados.
-- **Node.js** (v14+) para los módulos JavaScript.
-- Permisos de superusuario si ejecutas Docker con `sudo`.
+Este sistema permite recolectar, almacenar, filtrar y analizar eventos de tráfico extraídos desde Waze, utilizando tecnologías distribuidas como **Elasticsearch**, **Apache Pig** y **Hadoop**. A través de un pipeline completo, los datos se normalizan, se procesan en paralelo y se preparan para la toma de decisiones geográficas y temporales.
 
 ---
 
-## Levantar los servicios con Docker Compose
+## ✅ Requisitos previos
 
-1. **Detener contenedores activos**  
-   ```bash
-   sudo docker compose down
-   ```
-2. **Construir y arrancar**
+- **Docker** y **Docker Compose** instalados.
+- **Node.js v14+** para ejecutar los módulos JavaScript.
+- Permisos de superusuario (`sudo`) si el entorno lo requiere.
+
+---
+
+## 🚀 Despliegue con Docker Compose
+
+### 1. Detener contenedores previos (opcional)
+```bash
+sudo docker compose down
+```
+
+### 2. Construir y levantar los servicios
 ```bash
 sudo docker compose build --no-cache
 sudo docker compose up
 ```
-Esto iniciará:
 
-- Elasticsearch en https://localhost:9200 (usuario: elastic, contraseña: changeme)
+Esto iniciará los siguientes componentes:
 
-- Scraper:
-1. Indexa traffic_data.csv en batches de 1 000 registros.
-2. Comienza a scrapear datos de Waze.
+- **Elasticsearch** (https://localhost:9200)  
+  - Usuario: `elastic`  
+  - Contraseña: `changeme`
 
-- API de consultas en http://localhost:8080
+- **Scraper**
+  - Indexa el archivo inicial `traffic_data.csv` (usado como dataset base).
+  - Inicia el scraping en tiempo real de eventos desde Waze.
 
-## Generador aleatorio de tráfico (entrega 1)
+- **Servidor de consultas internas** (http://localhost:8080)  
+  - Permite ejecutar búsquedas simples sobre los eventos almacenados.
 
+---
+
+## 🧠 Filtrado y análisis distribuido (Apache Pig)
+
+### 1. Asegurarse de que Docker esté corriendo y que `traffic_data.csv` ya esté indexado.
+
+### 2. Ejecutar el análisis
 ```bash
-cd generator
-npm install
-node randomGenerator.js <número de queries> <distribucion> <p₁: probabilidad de comuna> <p₂: probabilidad de alerta> <p₃: probabilidad de tipo>
-```
-Es recomendable esperar a que el scraper haya comenzado a procesar los datos de Waze antes de ejecutar el comando del generador de tráfico.
-
--Ejemplo:
-```bash
-node randomGenerator.js 1000 pareto 1 1 0
-```
-La rama main está preparada para emplear LRU (allkeys-lru), mientras que la rama random_metricas utiliza la política aleatoria (allkeys-random). 
-
-## Scraper
-**Instalar dependencias**
-```bash
-cd scrapper
-npm install
-```
-Arrancar el servicio
-```bash
-node index.js
-```
-## 🗄️ Servidor de Base de Datos (Elastic)
-
-**Instalar dependencias**
-```bash
-cd Elastic
-npm install
-```
-Arrancar el servidor
-```bash
-node server.js
-```
-## Pruebas con `curl`
-
-**Obtener todas las consultas:**
-```bash
-curl 'http://localhost:8080/consultas'
-```
-**Obtener todas las consultas:**
-```bash
-curl 'http://localhost:8080/consultas?alerttype=alert'
-```
-
-## Sistema de filtrado y procesamiento de datos con apache pig
-
-Para poder ejecutar este sistema debe estar ejecutandose el docker compose, y elastic ya debe haber indexado la data del csv. Luego ejecuta:
-``` bash
-cd /hadoop/
+cd hadoop/
 ./run_analysis.sh
 ```
 
-Esto ejecutara el perfil de hadoop-analytics (que esta en el compose general) para despues fetchear la data desde elastic, contruir un csv con toda esa data, filtrarla usando el scipt filter_data.pig y finalmente procesar los datos utilizando process_data.pig.
+Este script ejecuta el perfil `hadoop-analytics` de Docker Compose y realiza:
 
-finalmente, para mostrar los resultados del procesado ejecuta (igualmente, dentro de la carpeta hadoop):
-``` bash
+1. Extracción de eventos desde Elasticsearch (`fetch_from_elastic.sh`)
+2. Filtrado y normalización (`filter_data.pig`)
+3. Procesamiento analítico (`process_events.pig`)
+
+### 3. Visualizar los resultados
+```bash
 ./display_results.sh
 ```
+
+Esto mostrará los archivos procesados generados por Apache Pig.
+
+---
+
+## 🔍 Scraper – Recolección de eventos
+
+Ubicación: `Proyecto_SD/scrapper/`
+
+### Instalación y ejecución
+```bash
+cd scrapper
+npm install
+node index.js
+```
+
+El scraper extrae datos desde Waze usando Puppeteer, procesándolos y enviándolos directamente a Elasticsearch. Incluye mejoras como extracción de ID de evento, hora reportada y nombre de usuario.
+
+---
+
+## 🗄️ Servidor de consultas internas (Elasticsearch)
+
+Ubicación: `Proyecto_SD/Elastic/`
+
+Este módulo permite realizar consultas básicas sobre los datos almacenados.
+
+### Instalación y ejecución
+```bash
+cd Elastic
+npm install
+node server.js
+```
+
+### Ejemplos de consulta con `curl`
+```bash
+curl 'http://localhost:8080/consultas'
+curl 'http://localhost:8080/consultas?alerttype=alert'
+```
+
+---
+
+## 🧪 Generador de tráfico aleatorio (Entrega 1)
+
+Ubicación: `Proyecto_SD/generator/`
+
+Simula peticiones de consulta al sistema usando distintas distribuciones.
+
+### Uso
+```bash
+cd generator
+npm install
+node randomGenerator.js <n_consultas> <distribucion> <p1> <p2> <p3>
+```
+
+Ejemplo:
+```bash
+node randomGenerator.js 1000 pareto 1 1 0
+```
+
+- `p1`: probabilidad de filtro por comuna  
+- `p2`: probabilidad de filtro por tipo de alerta  
+- `p3`: probabilidad de filtro por tipo de incidente  
+
+> 🔁 La rama `main` usa política de cacheo LRU (`allkeys-lru`).  
+> 🔀 La rama `random_metricas` usa política aleatoria (`allkeys-random`).
